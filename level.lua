@@ -9,6 +9,7 @@ local scene = composer.newScene()
 
 -- include Corona's "physics" library
 local physics = require "physics"
+physics.setDrawMode("hybrid")
 
 --------------------------------------------
 
@@ -37,10 +38,58 @@ function scene:create( event )
 	local background = display.newRect( display.screenOriginX, display.screenOriginY, screenW, screenH )
 	background.anchorX = 0
 	background.anchorY = 0
-	background:setFillColor( .5 )
+	background:setFillColor( 0 )
+
+	local leftWall = display.newRect (display.screenOriginX, display.screenOriginY, 1, display.contentHeight);
+	local rightWall = display.newRect (screenW, display.screenOriginY, 1, display.contentHeight);
+	local ceiling = display.newRect (display.screenOriginX, display.screenOriginY, display.contentWidth, 1);
+	leftWall:setFillColor(1)
+	rightWall:setFillColor(1)
+	ceiling:setFillColor(1)
+	leftWall.anchorX = 0.0;
+	leftWall.anchorY = 0.0;
+	rightWall.anchorX = 1.0;
+	rightWall.anchorY = 0.0;
+	ceiling.anchorX = 0.0;
+	ceiling.anchorY = 0.0;
+
+	physics.addBody (leftWall, "static",  { bounce = 1.0} );
+	physics.addBody (rightWall, "static", { bounce = 1.0} );
+	physics.addBody (ceiling, "static",   { bounce = 1.0} );
 
 	-- make a table to hold all of the breakable boxes
-	--local boxGroup = display.newGroup();
+	rowGroupList = {}
+	orbGroup = display.newGroup();
+
+	function background:touch(e)
+		if (e.phase == "began") then
+			local orbs = orbGroup.numChildren
+			local targetVelocity = 1000;
+			local xDist = e.x - orbGroup[1].x
+			local yDist = e.y - orbGroup[1].y
+			local angle = math.atan(yDist/xDist)
+			local xVel = math.cos(angle) * targetVelocity * (xDist / (math.abs(xDist)))
+			local yVel = math.sin(angle) * targetVelocity * (xDist / (math.abs(xDist)))
+			for i=1, orbs do
+				timer.performWithDelay(500, sleep)
+				local orb = orbGroup[i]
+				orb:setLinearVelocity(xVel, yVel)
+			end
+
+			timer.performWithDelay(2000, sleep)
+			local rows = table.getn(rowGroupList)
+			for i=1, rows do
+				local row = rowGroupList[i]
+				row.y = row.y + display.contentHeight/10
+			end
+		end
+	end
+
+	function sleep()
+	end
+
+
+	background:addEventListener("touch", background);
 
 	-- make a crate (off-screen), position it, and rotate slightly
 	--local crate = display.newImageRect( "crate.png", 90, 90 )
@@ -68,6 +117,45 @@ function scene:create( event )
 	--sceneGroup:insert( crate )
 end
 
+local function addBoxes(levelNum)
+
+	local rowGroup = display.newGroup();
+	for i=0,6 do
+		if (math.random(0, 2) == 1) then
+			local boxGroup = display.newGroup();
+			local xCoord = (display.contentWidth/7)*i + 22
+			local yCoord = display.contentHeight/10 - 20
+			local box = display.newRect(xCoord, yCoord, 40, 40) --for some reason this is the top left corner
+			box:setFillColor(1,1,0)
+			box.strokeWidth = 3
+			box:setStrokeColor(0)
+			box.anchorX = 0.5
+			box.anchorY = 0.5
+			boxGroup:insert(box)
+			local doubler = math.random(1, 3)
+			local boxValue = levelNum * doubler
+			local boxText = display.newText( {parent = boxGroup, text = tostring(boxValue), x = xCoord, y = yCoord, width = 25, height = 25, font = native.systemFont, align = "center"})
+			boxText:setFillColor(0)
+			rowGroup:insert(boxGroup)
+
+			physics.addBody(box, "static", { bounce = 1 })
+		end
+	end
+	table.insert(rowGroupList, rowGroup)
+
+end
+
+local function addOrbs(levelNum)
+	local currentPos = display.contentWidth / 2
+	for i=1,levelNum do
+		local orb = display.newCircle(orbGroup, currentPos, display.contentHeight - 5, 10)
+		orb:setFillColor(0,1,0)
+		orbGroup:insert(orb)
+		physics.addBody(orb, "dynamic", { friction = 0.0, bounce = 1.0, radius = 10 })
+		orb.gravityScale = 0.0
+	end
+end
+
 
 function scene:show( event )
 	local sceneGroup = self.view
@@ -77,13 +165,10 @@ function scene:show( event )
 		-- Called when the scene is still off screen and is about to move on screen
 	elseif phase == "did" then
 		-- Called when the scene is now on screen
+		local levelNum = 1
+		addBoxes(levelNum)
+		addOrbs(levelNum)
 
-		local boxGroup = display.newGroup();
-		local box = display.newRect(25, -20, 50, 50) --for some reason this is the top left corner
-		box:setFillColor(1,1,0)
-		box.anchorX = 0.5
-		box.anchorY = 0.5
-		boxGroup:insert(box)
 
 		physics.start()
 	end
