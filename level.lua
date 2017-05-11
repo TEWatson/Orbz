@@ -107,14 +107,14 @@ end
 
 local function addOrb(xVel, yVel)
 	local currentPos = display.contentWidth / 2
-	local orb = display.newCircle(currentPos, display.contentHeight - 5, 10)
-	orb:setFillColor(0,1,0)
+	local orb = display.newCircle(currentPos, display.contentHeight - 5, 7)
+	orb:setFillColor(0,0.5,1)
 	orb.myName = "ballz"
 	--TODO
 	local ballCollisionFilter = {categoryBits = 1, maskBits = 2}
-	physics.addBody(orb, "dynamic", { friction = 0.0, bounce = 1.0, radius = 10, filter = ballCollisionFilter })
+	physics.addBody(orb, "dynamic", { friction = 0.0, bounce = 1.0, radius = 7, filter = ballCollisionFilter })
 	-- physics.addBody(orb, "dynamic", { friction = 0.0, bounce = 1.0, radius = 10 })
-	orb.gravityScale = 0.2
+	orb.gravityScale = 0.1
 	orb:setLinearVelocity(xVel, yVel)
 end
 
