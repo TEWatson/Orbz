@@ -34,14 +34,14 @@ function onBoxCollision(self, event)
 			 if (value < 1) then
 				 timer.performWithDelay(20, function()
 					if self ~= nil then
-						physics.removeBody(self) --TODO find out why this breaks
+						--physics.removeBody(self) --TODO find out why this breaks
 						--self.parent[2]:removeSelf()
 						--self.parent:removeSelf()
 						--self:removeSelf()
 						--display.remove(self.parent[2])
 						display.remove(self.parent)
-						display.remove(self)
-						self = nil
+						--display.remove(self)
+						--self = nil
 					end
 				end)
 			 elseif (value >= 1) then
@@ -130,7 +130,6 @@ function startLevel()
 			row[j][2].y = row[j][2].y + display.contentHeight/10
 			if (row[j][1].y > display.contentHeight - 30) then
 				composer.gotoScene("menu", "fade", 100)
-
 				return true
 			end
 		end
