@@ -35,9 +35,13 @@ function onBoxCollision(self, event)
 			 timer.performWithDelay(20, function()
 				if self ~= nil then
 					physics.removeBody(self)
-					self.parent[2]:removeSelf()
-					self.parent:removeSelf()
-					self:removeSelf()
+					--self.parent[2]:removeSelf()
+					--self.parent:removeSelf()
+					--self:removeSelf()
+					--display.remove(self.parent[2])
+					display.remove(self.parent)
+					display.remove(self)
+					self = nil
 				end
 			end)
 		 elseif (value >= 1) then

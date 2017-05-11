@@ -33,7 +33,7 @@ function scene:create( event )
 	-- e.g. add display objects to 'sceneGroup', add touch listeners, etc.
 
 	-- display a background image
-	local background = display.newImageRect( "background.jpg", display.actualContentWidth, display.actualContentHeight )
+	local background = display.newImageRect( "balls2.gif", display.actualContentWidth, display.actualContentHeight )
 	background.anchorX = 0
 	background.anchorY = 0
 	background.x = 0 + display.screenOriginX
@@ -45,7 +45,7 @@ function scene:create( event )
 
 		 fontSize = 100
 	} )
-	titleLogo:setFillColor(0.5, 0.5, 1)
+	titleLogo:setFillColor(1, 1, 0.5)
 	titleLogo:setEmbossColor({
 		highlight = { r=0.75, g=0.5, b=0.5 },
 		shadow = { r=0.3, g=0.3, b=0.3 }
