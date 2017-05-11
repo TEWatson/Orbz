@@ -6,10 +6,12 @@
 
 local composer = require( "composer" )
 local scene = composer.newScene()
+local preference = require "preference"
 
 -- include Corona's "physics" library
 local physics = require "physics"
 physics.setDrawMode("normal")
+
 
 levelNum = 0
 rowGroup = display.newGroup() --all rows
@@ -119,9 +121,14 @@ local function addOrb(xVel, yVel)
 end
 
 function startLevel()
-	levelNum = levelNum + 1
-	numBallsLeft = levelNum
 
+	levelNum = levelNum + 1
+	if(levelNum > best) then
+		best = levelNum
+		bestScore.text = tostring(best)
+	end
+	numBallsLeft = levelNum
+	scoreText.text = tostring(levelNum)
 	local rows = rowGroup.numChildren
 	for i=1, rows do
 		local row = rowGroup[i]
@@ -129,6 +136,8 @@ function startLevel()
 			row[j][1].y = row[j][1].y + display.contentHeight/10
 			row[j][2].y = row[j][2].y + display.contentHeight/10
 			if (row[j][1].y > display.contentHeight - 30) then
+				best = best - 1
+				preference.save{high = best}
 				composer.gotoScene("menu", "fade", 100)
 				return true
 			end
@@ -145,12 +154,20 @@ function scene:show( event )
 	local phase = event.phase
 	enableTouch = true
 
+
 	if phase == "will" then
 		-- Called when the scene is still off screen and is about to move on screen
 
 
 		local sceneGroup = self.view
-
+		best = preference.getValue("high")
+		if(best == nil) then
+			best = 0
+		end
+		highScore = display.newText( {text = "Highscore: ", x = 60, y = 0, width = 100, height = 50, font = native.systemFont})
+		bestScore = display.newText( {text = tostring(best), x = 110, y = 0, width = 25, height = 50, font = native.systemFont})
+		score = display.newText( {text = "Score: ", x = display.contentWidth - 75, y = 0, width = 50, height = 50, font = native.systemFont, align = "right"})
+		scoreText = display.newText( {text = tostring(levelNum), x = display.contentWidth - 25, y = 0, width = 25, height = 50, font = native.systemFont, align = "right"})
 		-- We need physics started to add bodies, but we don't want the simulaton
 		-- running until the scene is on the screen.
 		physics.start()
@@ -237,6 +254,10 @@ function scene:hide( event )
 	if event.phase == "will" then
 		print("HIDE will")
 		rowGroup:removeSelf()
+		highScore:removeSelf()
+		score:removeSelf()
+		scoreText:removeSelf()
+		bestScore:removeSelf()
 		-- Called when the scene is on screen and is about to move off screen
 		--
 		-- INSERT code here to pause the scene
