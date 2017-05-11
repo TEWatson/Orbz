@@ -33,7 +33,7 @@ function scene:create( event )
 	-- e.g. add display objects to 'sceneGroup', add touch listeners, etc.
 
 	-- display a background image
-	local background = display.newImageRect( "balls2.gif", display.actualContentWidth, display.actualContentHeight )
+	local background = display.newImageRect( "galaxy.jpg", display.actualContentWidth, display.actualContentHeight )
 	background.anchorX = 0
 	background.anchorY = 0
 	background.x = 0 + display.screenOriginX
@@ -45,9 +45,9 @@ function scene:create( event )
 
 		 fontSize = 100
 	} )
-	titleLogo:setFillColor(1, 1, 0.5)
+	titleLogo:setFillColor(1, 1, 1)
 	titleLogo:setEmbossColor({
-		highlight = { r=0.75, g=0.5, b=0.5 },
+		highlight = { r=0, g=0, b=0 },
 		shadow = { r=0.3, g=0.3, b=0.3 }
 	});
 	titleLogo.x = display.contentCenterX
@@ -56,7 +56,7 @@ function scene:create( event )
 	-- create a widget button (which will loads level1.lua on release)
 	playBtn = widget.newButton{
 		label="Play Now",
-		labelColor = { default={255}, over={128} },
+		labelColor = { default={0}, over={255} },
 		default="button.png",
 		over="button-over.png",
 		width=154, height=40,

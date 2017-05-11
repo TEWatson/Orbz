@@ -30,12 +30,11 @@ function onBoxCollision(self, event)
 		 local numberText = boxParent[2]
 
 		 local value = tonumber(numberText.text) - 1
-		 print(value)
 		 if self ~= nil then
 			 if (value < 1) then
 				 timer.performWithDelay(20, function()
 					if self ~= nil then
-						physics.removeBody(self)
+						physics.removeBody(self) --TODO find out why this breaks
 						--self.parent[2]:removeSelf()
 						--self.parent:removeSelf()
 						--self:removeSelf()
@@ -90,7 +89,10 @@ local function addBoxes(levelNum)
 				local boxValue = levelNum * doubler
 				local boxText = display.newText( {parent = boxGroup, text = tostring(boxValue), x = xCoord, y = yCoord, width = 25, height = 25, font = native.systemFont, align = "center"})
 				boxText:setFillColor(0)
-				physics.addBody(box, "static", { bounce = 1 })
+				--TODO
+				local boxCollisionFilter = {categoryBits = 3, maskBits = 3}
+				physics.addBody(box, "static", { bounce = 1, filter = boxCollisionFilter })
+				-- physics.addBody(box, "static", { bounce = 1 })
 
 				box.collision = onBoxCollision
 				box:addEventListener("collision")
@@ -108,7 +110,10 @@ local function addOrb(xVel, yVel)
 	local orb = display.newCircle(currentPos, display.contentHeight - 5, 10)
 	orb:setFillColor(0,1,0)
 	orb.myName = "ballz"
-	physics.addBody(orb, "dynamic", { friction = 0.0, bounce = 1.0, radius = 10 })
+	--TODO
+	local ballCollisionFilter = {categoryBits = 1, maskBits = 2}
+	physics.addBody(orb, "dynamic", { friction = 0.0, bounce = 1.0, radius = 10, filter = ballCollisionFilter })
+	-- physics.addBody(orb, "dynamic", { friction = 0.0, bounce = 1.0, radius = 10 })
 	orb.gravityScale = 0.2
 	orb:setLinearVelocity(xVel, yVel)
 end
@@ -165,10 +170,10 @@ function scene:show( event )
 		local rightWall = display.newRect (screenW, display.screenOriginY, 1, display.contentHeight * 2);
 		local ceiling = display.newRect (display.screenOriginX, display.screenOriginY, display.contentWidth, 1);
 		local floor = display.newRect (display.screenOriginX, display.actualContentHeight, display.contentWidth, 1);
-		leftWall:setFillColor(1)
-		rightWall:setFillColor(1)
-		ceiling:setFillColor(1)
-		floor:setFillColor(1)
+		leftWall:setFillColor(0)
+		rightWall:setFillColor(0)
+		ceiling:setFillColor(0)
+		floor:setFillColor(0)
 		leftWall.anchorX = 0.0;
 		leftWall.anchorY = 0.0;
 		rightWall.anchorX = 1.0;
@@ -182,10 +187,17 @@ function scene:show( event )
 		floor.collision = onFloorCollision
 		floor:addEventListener("collision")
 
-		physics.addBody (leftWall, "static",  { bounce = 1.0} );
-		physics.addBody (rightWall, "static", { bounce = 1.0} );
-		physics.addBody (ceiling, "static",   { bounce = 1.0} );
-		physics.addBody (floor, "static", { bounce = 1.0} );
+		--TODO
+		local wallCollisionFilter = {categoryBits = 3, maskBits = 3}
+		physics.addBody (leftWall, "static",  { bounce = 1.0, filter = wallCollisionFilter} );
+		physics.addBody (rightWall, "static", { bounce = 1.0, filter = wallCollisionFilter} );
+		physics.addBody (ceiling, "static",   { bounce = 1.0, filter = wallCollisionFilter} );
+		physics.addBody (floor, "static", { bounce = 1.0, filter = wallCollisionFilter} );
+
+		-- physics.addBody (leftWall, "static",  { bounce = 1.0} );
+		-- physics.addBody (rightWall, "static", { bounce = 1.0} );
+		-- physics.addBody (ceiling, "static",   { bounce = 1.0} );
+		-- physics.addBody (floor, "static", { bounce = 1.0} );
 
 		function background:touch(e)
 			if (e.phase == "began") then
