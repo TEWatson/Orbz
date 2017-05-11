@@ -9,7 +9,7 @@ local scene = composer.newScene()
 
 -- include Corona's "physics" library
 local physics = require "physics"
-physics.setDrawMode("hybrid")
+physics.setDrawMode("normal")
 
 levelNum = 0
 rowGroup = display.newGroup() --all rows
@@ -25,29 +25,31 @@ function scene:create( event )
 end
 
 function onBoxCollision(self, event)
-	 local boxParent = self.parent
-	 local numberText = boxParent[2]
+	if (event.phase == "began") then
+		 local boxParent = self.parent
+		 local numberText = boxParent[2]
 
-	 local value = tonumber(numberText.text) - 1
-	 print(value)
-	 if self ~= nil then
-		 if (value < 1) then
-			 timer.performWithDelay(20, function()
-				if self ~= nil then
-					physics.removeBody(self)
-					--self.parent[2]:removeSelf()
-					--self.parent:removeSelf()
-					--self:removeSelf()
-					--display.remove(self.parent[2])
-					display.remove(self.parent)
-					display.remove(self)
-					self = nil
-				end
-			end)
-		 elseif (value >= 1) then
-			 self.parent[2].text = tostring(value)
-		 end
- 	 end
+		 local value = tonumber(numberText.text) - 1
+		 print(value)
+		 if self ~= nil then
+			 if (value < 1) then
+				 timer.performWithDelay(20, function()
+					if self ~= nil then
+						physics.removeBody(self)
+						--self.parent[2]:removeSelf()
+						--self.parent:removeSelf()
+						--self:removeSelf()
+						--display.remove(self.parent[2])
+						display.remove(self.parent)
+						display.remove(self)
+						self = nil
+					end
+				end)
+			 elseif (value >= 1) then
+				 self.parent[2].text = tostring(value)
+			 end
+	 	 end
+ 	end
 end
 
 function onFloorCollision(self, event)
@@ -90,8 +92,8 @@ local function addBoxes(levelNum)
 				boxText:setFillColor(0)
 				physics.addBody(box, "static", { bounce = 1 })
 
-				box.postCollision = onBoxCollision
-				box:addEventListener("postCollision")
+				box.collision = onBoxCollision
+				box:addEventListener("collision")
 
 				row:insert(boxGroup)
 			end
@@ -103,14 +105,12 @@ end
 
 local function addOrb(xVel, yVel)
 	local currentPos = display.contentWidth / 2
-	for i=1, levelNum do
-		local orb = display.newCircle(currentPos, display.contentHeight - 5, 10)
-		orb:setFillColor(0,1,0)
-		orb.myName = "ballz"
-		physics.addBody(orb, "dynamic", { friction = 0.0, bounce = 1.0, radius = 10 })
-		orb.gravityScale = 0.0
-		orb:setLinearVelocity(xVel, yVel)
-	end
+	local orb = display.newCircle(currentPos, display.contentHeight - 5, 10)
+	orb:setFillColor(0,1,0)
+	orb.myName = "ballz"
+	physics.addBody(orb, "dynamic", { friction = 0.0, bounce = 1.0, radius = 10 })
+	orb.gravityScale = 0.2
+	orb:setLinearVelocity(xVel, yVel)
 end
 
 function startLevel()
@@ -132,12 +132,14 @@ function startLevel()
 	end
 
 	addBoxes(levelNum)
+	enableTouch = true
 end
 
 function scene:show( event )
 
 	local sceneGroup = self.view
 	local phase = event.phase
+	enableTouch = true
 
 	if phase == "will" then
 		-- Called when the scene is still off screen and is about to move on screen
@@ -187,15 +189,18 @@ function scene:show( event )
 
 		function background:touch(e)
 			if (e.phase == "began") then
-				local targetVelocity = 500;
-				local xDist = e.x - display.contentWidth / 2
-				local yDist = e.y - display.contentHeight - 5
-				local angle = math.atan(yDist/xDist)
-				local xVel = math.cos(angle) * targetVelocity * (xDist / (math.abs(xDist)))
-				local yVel = math.sin(angle) * targetVelocity * (xDist / (math.abs(xDist)))
-				timer.performWithDelay(100, function()
-						addOrb(xVel, yVel)
-					end, 1)
+				if (enableTouch) then
+					enableTouch = false;
+					local targetVelocity = 800;
+					local xDist = e.x - display.contentWidth / 2
+					local yDist = e.y - display.contentHeight - 5
+					local angle = math.atan(yDist/xDist)
+					local xVel = math.cos(angle) * targetVelocity * (xDist / (math.abs(xDist)))
+					local yVel = math.sin(angle) * targetVelocity * (xDist / (math.abs(xDist)))
+					timer.performWithDelay(100, function()
+							addOrb(xVel, yVel)
+						end, levelNum)
+				end
 			end
 		end
 
