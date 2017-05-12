@@ -246,13 +246,11 @@ function scene:show( event )
 end
 
 function scene:hide( event )
-	print("Hide")
 	local sceneGroup = self.view
 
 	local phase = event.phase
 
 	if event.phase == "will" then
-		print("HIDE will")
 		rowGroup:removeSelf()
 		highScore:removeSelf()
 		score:removeSelf()
@@ -264,7 +262,6 @@ function scene:hide( event )
 		-- e.g. stop timers, stop animation, unload sounds, etc.)
 		physics.stop()
 	elseif phase == "did" then
-		print("HIDE did")
 		-- Called when the scene is now off screen
 
 	end
